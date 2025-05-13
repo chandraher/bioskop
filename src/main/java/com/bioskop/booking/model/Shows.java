@@ -23,10 +23,8 @@ public class Shows {
     private Movie movie;
 
     @Column(name = "startTime")
-    @Temporal(TemporalType.TIME)
     private Date startTime;
 
-    @Column(name = "endTime")
     @Temporal(TemporalType.TIME)
     private Date endTime;
 
