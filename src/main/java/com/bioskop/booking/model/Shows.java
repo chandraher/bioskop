@@ -3,6 +3,8 @@ package com.bioskop.booking.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "shows")
 @Data
@@ -20,9 +22,13 @@ public class Shows {
     @JoinColumn(name = "movie_id")
     private Movie movie;
 
-    @ManyToOne
-    @JoinColumn(name = "schedule_id")
-    private Schedule schedule;
+    @Column(name = "startTime")
+    @Temporal(TemporalType.TIME)
+    private Date startTime;
+
+    @Column(name = "endTime")
+    @Temporal(TemporalType.TIME)
+    private Date endTime;
 
     @Column(name = "status")
     private String status;
