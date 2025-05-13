@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    hikari:
+      connection-timeout: 600000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 10
+    url: jdbc:postgresql://127.0.0.1/course?reWriteBatchedInserts=true
+    username: postgres
+    password: 142126
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+server:
+  port: 8080
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+server:
+  port: 8081
