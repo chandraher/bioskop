@@ -19,12 +19,12 @@ public class Sheats {
     @JoinColumn(name = "theaters_id")
     private Theater theater;
 
-    @Column(name = "row_position")
+    @Column(name = "row_position", nullable = false)
     private Integer row;
 
-    @Column(name = "column_position")
+    @Column(name = "column_position", nullable = false)
     private Integer column;
 
-    @Column(name = "flag")
+    @Column(name = "flag", nullable = false)
     private String flag;
 }

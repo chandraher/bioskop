@@ -2,7 +2,6 @@ package com.bioskop.booking.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.apache.catalina.User;
 
 @Entity
 @Table(name = "booking")

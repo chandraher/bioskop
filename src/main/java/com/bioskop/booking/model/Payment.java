@@ -16,7 +16,7 @@ public class Payment {
     @JoinColumn(name = "booking_id")
     private Booking booking;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private String status;
 
     @Column(name = "virtual_account")

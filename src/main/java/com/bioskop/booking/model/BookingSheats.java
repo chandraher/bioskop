@@ -3,6 +3,8 @@ package com.bioskop.booking.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "booking_sheats")
 @Data
@@ -21,5 +23,5 @@ public class BookingSheats {
     private Sheats sheats;
 
     @Column(name = "price")
-    private Integer price;
+    private BigDecimal price;
 }
