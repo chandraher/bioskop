@@ -24,4 +24,7 @@ public class Sheats {
 
     @Column(name = "column_position")
     private Integer column;
+
+    @Column(name = "flag")
+    private String flag;
 }
