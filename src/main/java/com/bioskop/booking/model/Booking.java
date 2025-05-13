@@ -3,6 +3,8 @@ package com.bioskop.booking.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "booking")
 @Data
@@ -28,5 +30,8 @@ public class Booking {
     @JoinColumn(name = "users_id")
     private Users users;
 
+
+    @Column(name = "booking_date")
+    private Date bookingDate;
 
 }
