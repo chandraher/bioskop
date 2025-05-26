@@ -15,16 +15,11 @@ public class Booking {
     private Integer id;
 
     @Column(name = "status")
-    private String status;
+    private String status; //status booking : paid / unpaid / expired
 
     @ManyToOne
     @JoinColumn(name = "shows_id")
-    private Shows shows;
-
-    @ManyToOne
-    @JoinColumn(name = "sheats_id")
-    private Sheats sheats;
-
+    private Show shows;
 
     @ManyToOne
     @JoinColumn(name = "users_id")

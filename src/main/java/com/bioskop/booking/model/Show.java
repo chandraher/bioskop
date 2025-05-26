@@ -3,12 +3,13 @@ package com.bioskop.booking.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
 @Table(name = "shows")
 @Data
-public class Shows {
+public class Show {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +26,15 @@ public class Shows {
     @Column(name = "startTime")
     private Date startTime;
 
-    @Temporal(TemporalType.TIME)
+    @Column(name = "endTime")
     private Date endTime;
 
     @Column(name = "status")
-    private String status;
+    private String status; //open, proggres, closed
+
+    @Column(name = "price")
+    private BigDecimal price;
+
+    //add price for weekend / holiday
+
 }

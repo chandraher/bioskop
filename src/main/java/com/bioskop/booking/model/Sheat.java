@@ -3,10 +3,12 @@ package com.bioskop.booking.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "sheats")
 @Data
-public class Sheats {
+public class Sheat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +27,9 @@ public class Sheats {
     @Column(name = "column_position", nullable = false)
     private Integer column;
 
-    @Column(name = "flag", nullable = false)
-    private String flag;
+    @Column(name = "status", nullable = false)
+    private String status; // booking, available, maintenance
+
+
+    //naming variabel s
 }
