@@ -1,39 +1,120 @@
 package com.bioskop.booking.controller;
 
+import com.bioskop.booking.dto.MovieRequestDto;
+import com.bioskop.booking.dto.MovieResponseDto;
+import com.bioskop.booking.dto.PagedResponseDto;
 import com.bioskop.booking.model.Movie;
-import org.springframework.web.bind.annotation.*;
+import com.bioskop.booking.service.interfaces.IMovieService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/movies")
 public class MovieController {
-    // Untuk sementara, simulasikan list movie di memori
-    private static final List<Movie> MOVIES = new ArrayList<>();
+    static String uploadDir = "uploaded-movies";
 
-    static {
-        // Dummy data
-        MOVIES.add(new Movie(1L, "Inception", "Action", 8.8));
-        MOVIES.add(new Movie(2L, "Interstellar", "Sci-Fi", 8.6));
-        MOVIES.add(new Movie(3L, "The Godfather", "Crime", 9.2));
-        MOVIES.add(new Movie(4L, "Coco", "Animation", 8.4));
-    }
+    @Autowired
+    private IMovieService movieService;
 
     @GetMapping
-    public ResponseEntity<List<Movie>> getMovies(
+    public PagedResponseDto<MovieResponseDto> listMovies(
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) Double rating,
-            @RequestParam(required = false) String genre
+            @RequestParam(required = false) String rating,
+            @RequestParam(required = false) String genre,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        List<Movie> filtered = MOVIES.stream()
-                .filter(m -> title == null || m.getTitle().toLowerCase().contains(title.toLowerCase()))
-                .filter(m -> rating == null || m.getRating() >= rating)
-                .filter(m -> genre == null || m.getGenre().equalsIgnoreCase(genre))
+        Page<Movie> moviePage = movieService.searchMovies(title, rating, genre, PageRequest.of(page, size));
+        List<MovieResponseDto> content = moviePage.getContent().stream()
+                .map(m -> new MovieResponseDto(
+                        m.getId(),
+                        m.getTitle(),
+                        m.getRating(),
+                        m.getDuration(),
+                        m.getGenre(),
+                        m.getUrlImage()
+                ))
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(filtered, HttpStatus.OK);
+        return new PagedResponseDto<>(
+                content,
+                page,
+                size,
+                moviePage.getTotalElements(),
+                moviePage.getTotalPages()
+        );
     }
+
+
+@PostMapping(value = "/add", consumes = "multipart/form-data")
+public ResponseEntity<?> addMovie(
+        @ModelAttribute @Validated MovieRequestDto dto,
+        BindingResult bindingResult) throws Exception {
+    if (bindingResult.hasErrors()) {
+        String msg = bindingResult.getFieldErrors().stream()
+                .map(e -> e.getDefaultMessage())
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("Validasi gagal");
+        return ResponseEntity.badRequest().body(msg);
+    }
+    Movie movie = movieService.addMovie(dto, uploadDir);
+    MovieResponseDto response = new MovieResponseDto(
+            movie.getId(),
+            movie.getTitle(),
+            movie.getRating(),
+            String.valueOf(movie.getDuration()),
+            movie.getGenre(),
+            movie.getUrlImage()
+    );
+    return ResponseEntity.ok(response);
+}
+//@ModelAttribute anotasi digunakan sebagai request body berbentuk objek/multipart
+//@validated untuk validasi di DTO
+//BindingResult untuk menangkap error validasi
+@PutMapping(value = "/{id}", consumes = "multipart/form-data")
+public ResponseEntity<?> updateMovie(
+        @PathVariable Integer id,
+        @ModelAttribute @Validated MovieRequestDto dto,
+        BindingResult bindingResult) throws Exception {
+    if (bindingResult.hasErrors()) {
+        String msg = bindingResult.getFieldErrors().stream()
+                .map(e -> e.getDefaultMessage())
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("Validasi gagal");
+        return ResponseEntity.badRequest().body(msg);
+    }
+    Movie movie = movieService.updateMovie(id, dto, uploadDir);
+    MovieResponseDto response = new MovieResponseDto(
+            movie.getId(),
+            movie.getTitle(),
+            movie.getRating(),
+            String.valueOf(movie.getDuration()),
+            movie.getGenre(),
+            movie.getUrlImage()
+    );
+    return ResponseEntity.ok(response);
+}
+
+@DeleteMapping("/{id}")
+public ResponseEntity<?> deleteMovie(@PathVariable Integer id) throws Exception {
+    movieService.deleteMovie(id);
+    return ResponseEntity.ok("Movie berhasil dihapus");
+}
+
 }

@@ -23,4 +23,7 @@ public class Movie {
     @Column(name = "genre")
     private String genre;
 
+    @Column(name = "url_image")
+    private String urlImage;
+
 }
