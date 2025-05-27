@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,19 +17,13 @@ public class CinemaHallController {
     private ICinemaHallService cinemaHallService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody @Validated CinemaHallRequestDto dto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            String msg = bindingResult.getFieldErrors().stream()
-                    .map(e -> e.getDefaultMessage())
-                    .reduce((a, b) -> a + ", " + b)
-                    .orElse("Validasi gagal");
-            return ResponseEntity.badRequest().body(msg);
-        }
+    public ResponseEntity<?> create(@RequestBody CinemaHallRequestDto dto) {
+    
         return ResponseEntity.ok(cinemaHallService.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody @Validated CinemaHallRequestDto dto, BindingResult bindingResult) {
+    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody CinemaHallRequestDto dto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             String msg = bindingResult.getFieldErrors().stream()
                     .map(e -> e.getDefaultMessage())
