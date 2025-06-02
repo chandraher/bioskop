@@ -23,10 +23,15 @@ public class Show {
     @JoinColumn(name = "movie_id")
     private Movie movie;
 
-    @Column(name = "startTime")
+    @Column(name = "date_show")
+    private Date dateShow;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "start_time")
     private Date startTime;
 
-    @Column(name = "endTime")
+    @Temporal(TemporalType.TIME)
+    @Column(name = "end_time")
     private Date endTime;
 
     @Column(name = "status")

@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,15 +62,7 @@ public class MovieController {
 
 @PostMapping(value = "/add", consumes = "multipart/form-data")
 public ResponseEntity<?> addMovie(
-        @ModelAttribute @Validated MovieRequestDto dto,
-        BindingResult bindingResult) throws Exception {
-    if (bindingResult.hasErrors()) {
-        String msg = bindingResult.getFieldErrors().stream()
-                .map(e -> e.getDefaultMessage())
-                .reduce((a, b) -> a + ", " + b)
-                .orElse("Validasi gagal");
-        return ResponseEntity.badRequest().body(msg);
-    }
+        @ModelAttribute MovieRequestDto dto) throws Exception {
     Movie movie = movieService.addMovie(dto, uploadDir);
     MovieResponseDto response = new MovieResponseDto(
             movie.getId(),
@@ -90,15 +80,7 @@ public ResponseEntity<?> addMovie(
 @PutMapping(value = "/{id}", consumes = "multipart/form-data")
 public ResponseEntity<?> updateMovie(
         @PathVariable Integer id,
-        @ModelAttribute @Validated MovieRequestDto dto,
-        BindingResult bindingResult) throws Exception {
-    if (bindingResult.hasErrors()) {
-        String msg = bindingResult.getFieldErrors().stream()
-                .map(e -> e.getDefaultMessage())
-                .reduce((a, b) -> a + ", " + b)
-                .orElse("Validasi gagal");
-        return ResponseEntity.badRequest().body(msg);
-    }
+        @ModelAttribute MovieRequestDto dto) throws Exception {
     Movie movie = movieService.updateMovie(id, dto, uploadDir);
     MovieResponseDto response = new MovieResponseDto(
             movie.getId(),
