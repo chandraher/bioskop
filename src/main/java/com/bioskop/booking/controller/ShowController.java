@@ -2,6 +2,8 @@ package com.bioskop.booking.controller;
 
 import com.bioskop.booking.dto.ShowListFilterDto;
 import com.bioskop.booking.dto.ShowListResponseDto;
+import com.bioskop.booking.dto.ShowAvailableSheatsResponseDto;
+import com.bioskop.booking.dto.ShowAddRequestDto;
 import com.bioskop.booking.service.ShowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +29,13 @@ public class ShowController {
         return showService.getShows(filter);
     }
 
+    @GetMapping("/{showId}/available-sheats")
+    public ShowAvailableSheatsResponseDto getAvailableSheatsByShowId(@PathVariable Integer showId) {
+        return showService.getAvailableSheatsByShowId(showId);
+    }
+
     @PostMapping
-    public String addShow(@RequestBody com.bioskop.booking.dto.ShowAddRequestDto dto) {
+    public String addShow(@RequestBody ShowAddRequestDto dto) {
         return showService.addShow(dto);
     }
 }

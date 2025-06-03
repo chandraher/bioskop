@@ -1,5 +1,6 @@
 package com.bioskop.booking.service;
 
+import com.bioskop.booking.dto.ShowAvailableSheatsResponseDto;
 import com.bioskop.booking.dto.ShowListFilterDto;
 import com.bioskop.booking.dto.ShowListResponseDto;
 import com.bioskop.booking.model.Show;
@@ -20,6 +21,8 @@ public class ShowService implements com.bioskop.booking.service.interfaces.IShow
     private final ShowRepository showRepository;
     private final com.bioskop.booking.repository.TheaterRepository theaterRepository;
     private final com.bioskop.booking.repository.MovieRepository movieRepository;
+    private final com.bioskop.booking.repository.SheatRepository sheatRepository;
+    private final com.bioskop.booking.repository.BookingSheatRepository bookingSheatRepository;
 
     @Override
     public List<ShowListResponseDto> getShows(ShowListFilterDto filter) {
@@ -127,5 +130,40 @@ public class ShowService implements com.bioskop.booking.service.interfaces.IShow
         }
         return "Show(s) added successfully";
     }
-}
 
+    @Override
+    public ShowAvailableSheatsResponseDto getAvailableSheatsByShowId(Integer showId) {
+        var showOpt = showRepository.findById(showId);
+        if (showOpt.isEmpty()) return null;
+        var show = showOpt.get();
+        var theater = show.getTheater();
+        var movie = show.getMovie();
+        // Ambil semua kursi di theater
+        var allSheats = sheatRepository.findByTheater(theater);
+        // Ambil kursi yang sudah dibooking untuk show ini
+        var bookedSheats = bookingSheatRepository.findBookedSheatsByShowId(showId);
+        // Filter kursi yang belum dibooking
+        var availableSheats = allSheats.stream()
+            .filter(s -> bookedSheats.stream().noneMatch(bs -> bs.getId().equals(s.getId())))
+            .toList();
+        // Build response
+        var resp = new com.bioskop.booking.dto.ShowAvailableSheatsResponseDto();
+        resp.setTheater_id(theater.getId());
+        resp.setTheater_name(theater.getName());
+        resp.setMovie_id(movie.getId());
+        resp.setMovie_name(movie.getTitle());
+        resp.setMax_row(theater.getMaxRow());
+        resp.setMax_column(theater.getMaxColumn());
+        var list = new java.util.ArrayList<com.bioskop.booking.dto.ShowAvailableSheatsResponseDto.SheatAvailableDto>();
+        for (var s : availableSheats) {
+            var dto = new com.bioskop.booking.dto.ShowAvailableSheatsResponseDto.SheatAvailableDto();
+            dto.setRow(s.getRow());
+            dto.setColumn(s.getColumn());
+            dto.setId_sheats(s.getId());
+            dto.setCode(s.getCode());
+            list.add(dto);
+        }
+        resp.setList_sheats_available(list);
+        return resp;
+    }
+}
