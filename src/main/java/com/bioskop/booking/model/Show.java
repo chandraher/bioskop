@@ -23,16 +23,17 @@ public class Show {
     @JoinColumn(name = "movie_id")
     private Movie movie;
 
+    @Temporal(TemporalType.DATE)
     @Column(name = "date_show")
     private Date dateShow;
-
-    @Temporal(TemporalType.DATE)
-    @Column(name = "start_time")
-    private Date startTime;
 
     @Temporal(TemporalType.TIME)
     @Column(name = "end_time")
     private Date endTime;
+
+    @Temporal(TemporalType.TIME)
+    @Column(name = "start_time")
+    private Date startTime;
 
     @Column(name = "status")
     private String status; //open, proggres, closed
