@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IShowService {
     List<ShowListResponseDto> getShows(ShowListFilterDto filter);
+    String addShow(com.bioskop.booking.dto.ShowAddRequestDto dto);
 }

@@ -26,4 +26,9 @@ public class ShowController {
         filter.setTheater_id(theater_id);
         return showService.getShows(filter);
     }
+
+    @PostMapping
+    public String addShow(@RequestBody com.bioskop.booking.dto.ShowAddRequestDto dto) {
+        return showService.addShow(dto);
+    }
 }

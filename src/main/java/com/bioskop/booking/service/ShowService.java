@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ShowService implements com.bioskop.booking.service.interfaces.IShowService {
     private final ShowRepository showRepository;
+    private final com.bioskop.booking.repository.TheaterRepository theaterRepository;
+    private final com.bioskop.booking.repository.MovieRepository movieRepository;
 
     @Override
     public List<ShowListResponseDto> getShows(ShowListFilterDto filter) {
@@ -56,4 +58,74 @@ public class ShowService implements com.bioskop.booking.service.interfaces.IShow
         }
         return result;
     }
+
+    @Override
+    public String addShow(com.bioskop.booking.dto.ShowAddRequestDto dto) {
+        // 1. Validasi mandatory
+        if (dto.getTheater_id() == null || dto.getMovie_id() == null || dto.getDate_show() == null || dto.getDate_show().isEmpty() ||
+            dto.getStatus() == null || dto.getStatus().isEmpty() || dto.getPrice() == null || dto.getList_time() == null || dto.getList_time().isEmpty()) {
+            return "All fields are mandatory";
+        }
+
+        // 2. Cek foreign key
+        var theaterOpt = theaterRepository.findById(dto.getTheater_id());
+        if (theaterOpt.isEmpty()) return "Theater is empty";
+        var movieOpt = movieRepository.findById(dto.getMovie_id());
+        if (movieOpt.isEmpty()) return "Movie is empty";
+
+        // 3. Cek duplikasi kombinasi theater_id, movie_id, date_show
+        java.util.Date dateShow;
+        try {
+            dateShow = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(dto.getDate_show());
+        } catch (Exception e) {
+            return "Invalid date_show format";
+        }
+        var existingShows = showRepository.findShowsByFilter(dateShow, null, null, dto.getTheater_id());
+        // boolean duplicate = existingShows.stream().anyMatch(s ->
+        //     s.getMovie().getId().equals(dto.getMovie_id()) &&
+        //     s.getTheater().getId().equals(dto.getTheater_id()) &&
+        //     s.getDateShow().equals(dateShow)
+        // );
+        // if (duplicate) return "Show with same theater, movie, and date already exists";
+
+        // 4. Validasi overlap waktu
+        for (var timeDto : dto.getList_time()) {
+            java.util.Date startTime, endTime;
+            try {
+                startTime = new java.text.SimpleDateFormat("HH:mm:ss").parse(timeDto.getStart_time());
+                endTime = new java.text.SimpleDateFormat("HH:mm:ss").parse(timeDto.getEnd_time());
+            } catch (Exception e) {
+                return "Invalid start_time or end_time format";
+            }
+            for (var show : existingShows) {
+                java.util.Date existStart = show.getStartTime();
+                java.util.Date existEnd = show.getEndTime();
+                if (existStart != null && existEnd != null &&
+                    ((startTime.equals(existStart) || (startTime.after(existStart) && startTime.before(existEnd))) ||
+                    (endTime.after(existStart) && endTime.before(existEnd)) ||
+                    (startTime.before(existStart) && endTime.after(existEnd)))) {
+                    return "Show time overlaps with existing show";
+                }
+            }
+        }
+
+        // 5. Insert show(s)
+        for (var timeDto : dto.getList_time()) {
+            try {
+                var show = new com.bioskop.booking.model.Show();
+                show.setTheater(theaterOpt.get());
+                show.setMovie(movieOpt.get());
+                show.setDateShow(dateShow);
+                show.setStatus(dto.getStatus());
+                show.setPrice(dto.getPrice());
+                show.setStartTime(new java.text.SimpleDateFormat("HH:mm:ss").parse(timeDto.getStart_time()));
+                show.setEndTime(new java.text.SimpleDateFormat("HH:mm:ss").parse(timeDto.getEnd_time()));
+                showRepository.save(show);
+            } catch (Exception e) {
+                return "Failed to save show: " + e.getMessage();
+            }
+        }
+        return "Show(s) added successfully";
+    }
 }
+
