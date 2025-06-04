@@ -10,7 +10,12 @@ import lombok.Data;
 public class BookingSheat {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "booking_sheats_seq_gen")
+    @SequenceGenerator(
+        name = "booking_sheats_seq_gen",
+        sequenceName = "booking_sheats_seq",
+        allocationSize = 1
+    )
     private Integer id;
 
     @ManyToOne
